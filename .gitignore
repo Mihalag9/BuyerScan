@@ -1,0 +1,174 @@
+# ---------- OS ----------
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+Thumbs.db
+ehthumbs.db
+desktop.ini
+*.lnk
+
+# ---------- IDE / редакторы ----------
+.vs/
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json.example
+!.vscode/launch.json.example
+*.swp
+*.swo
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.rsuser
+_ReSharper*/
+*.DotSettings.user
+.fleet/
+
+# ---------- .NET / C# ----------
+[Dd]ebug/
+[Rr]elease/
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+[Ll]og/
+[Ll]ogs/
+publish/
+artifacts/
+*.dll
+*.pdb
+*.exe
+*.nupkg
+*.snupkg
+*.nuspec
+project.lock.json
+project.fragment.lock.json
+*.cache
+*.dbmdl
+*.jfm
+*.svclog
+*.psess
+*.vsp
+*.vspx
+.vsidx
+.dotnet/
+.nuget/
+tools/
+# ЕФ Core: миграции НЕ игнорируем — это исходный код!
+
+# ---------- .NET User Secrets / локальные настройки ----------
+appsettings.Development.json
+appsettings.Local.json
+appsettings.*.Local.json
+secrets.json
+*.pfx
+*.snk
+
+# ---------- Node / Frontend ----------
+node_modules/
+.npm/
+.yarn/
+.pnp.*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+
+# Сборка Vite
+dist/
+dist-ssr/
+build/
+out/
+.vite/
+.vite-cache/
+*.local
+
+# Vite PWA plugin (dev-версия service worker'а)
+dev-dist/
+public/sw.js
+public/workbox-*.js
+public/manifest.webmanifest.map
+
+# TypeScript
+*.tsbuildinfo
+.tscache/
+
+# ---------- Python (spike) ----------
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+.python-version
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# ---------- Базы данных и кэш (локальные volume) ----------
+pgdata/
+postgres-data/
+redis-data/
+redis-dump.rdb
+dump.rdb
+*.sql.gz
+*.dump
+
+# ---------- Docker ----------
+docker-compose.override.yml
+docker-compose.local.yml
+docker-compose.*.local.yml
+compose.override.yaml
+.docker/
+
+# ---------- Nginx / Certbot / TLS ----------
+infra/nginx/certs/
+infra/certbot/conf/
+infra/certbot/www/
+*.pem
+*.key
+*.crt
+*.cer
+!infra/nginx/example/*.crt
+
+# ---------- Секреты и окружение ----------
+.env
+.env.*
+!.env.example
+*.env.local
+*.env.production
+!*.env.example
+
+# ---------- Временные медиа и загрузки ----------
+uploads/
+tmp/
+temp/
+storage/
+media_cache/
+*.tmp
+*.bak
+*.orig
+*.log
+
+# Локально выгруженные веса нейросетей (RMBG, FLUX и т.п.)
+models/
+*.onnx
+*.pt
+*.pth
+*.safetensors
+*.ckpt
+*.h5
+
+# ---------- Логи и тестовый вывод ----------
+logs/
+*.log
+coverage/
+coverage.xml
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
