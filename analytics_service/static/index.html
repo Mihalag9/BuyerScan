@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TagMaster — Analytics test</title>
+<style>
+  :root { --ink:#111417; --muted:#66727d; --line:#dbe3e8; --accent:#0d7c86; --bg:#eef4f5; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+         font:14px/1.45 Inter,"Segoe UI",Arial,sans-serif; }
+  .wrap { max-width:1100px; margin:0 auto; padding:24px; }
+  h1 { font-size:24px; margin:0 0 4px; }
+  h2 { font-size:16px; margin:20px 0 8px; }
+  .muted { color:var(--muted); }
+  .card { background:#fff; border:1px solid var(--line); border-radius:10px;
+          padding:18px; box-shadow:0 6px 20px rgba(17,24,28,.05); }
+  label { display:grid; gap:5px; font-size:12px; font-weight:800;
+          color:var(--muted); text-transform:uppercase; }
+  input[type=text], input[type=number] {
+    width:100%; border:1px solid var(--line); border-radius:8px; padding:9px 11px;
+    background:#fbfdfd; color:var(--ink); font:inherit;
+  }
+  input:focus { outline:none; border-color:var(--accent);
+                box-shadow:0 0 0 3px rgba(13,124,134,.12); }
+  .grid { display:grid; grid-template-columns:2fr 1fr 1fr; gap:12px; }
+  .row { display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-top:14px; }
+  button { min-height:40px; border:0; border-radius:8px; padding:0 18px;
+           background:linear-gradient(135deg,#111719,#25363a); color:#fff;
+           font-weight:800; cursor:pointer; font:inherit; }
+  button:hover { filter:brightness(1.08); }
+  button[disabled] { opacity:.5; cursor:progress; }
+  button.secondary { background:#edf4f5; color:var(--accent); }
+  .status { font-weight:700; }
+  .status.err { color:#c04452; }
+  .progress { max-height:220px; overflow:auto; background:#0f1417; color:#b8e0c0;
+              border-radius:10px; padding:12px; font:12px/1.5 "Consolas",monospace; }
+  .stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px;
+           margin-top:12px; }
+  .stats > div { background:#f6f9fa; border:1px solid var(--line);
+                 border-radius:8px; padding:12px; }
+  .stats b { display:block; font-size:20px; margin-top:4px; }
+  .stats span { color:var(--muted); font-size:11px; font-weight:800;
+                text-transform:uppercase; }
+  table { width:100%; border-collapse:collapse; margin-top:12px; }
+  th, td { padding:9px 8px; border-bottom:1px solid var(--line); text-align:left;
+           font-size:13px; }
+  th { color:var(--muted); font-size:11px; text-transform:uppercase; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>TagMaster — Analytics</h1>
+  <p class="muted">Поиск похожих товаров на Wildberries.</p>
+
+  <div class="card" style="margin-top:18px;">
+    <div class="grid">
+      <label>Поисковый запрос
+        <input id="q" type="text" value="керамическая вазочка">
+      </label>
+      <label>Sample
+        <input id="sample" type="number" value="20" min="1" max="60">
+      </label>
+      <label>Target
+        <input id="target" type="number" value="10" min="1" max="60">
+      </label>
+    </div>
+
+    <div class="row">
+      <label style="display:flex; flex-direction:row; align-items:center; gap:6px;
+                    text-transform:none; font-size:13px;">
+        <input id="browser" type="checkbox" checked>
+        Использовать браузер (медленно, но надёжно)
+      </label>
+    </div>
+
+    <div class="row">
+      <button id="go">Начать поиск</button>
+      <button id="reset" class="secondary" type="button">Сбросить</button>
+      <span id="status" class="status muted">Готов</span>
+    </div>
+  </div>
+
+  <div id="progressCard" class="card" style="margin-top:18px; display:none;">
+    <h2 style="margin-top:0;">Прогресс</h2>
+    <div id="progress" class="progress"></div>
+  </div>
+
+  <div id="statsCard" class="card" style="margin-top:18px; display:none;">
+    <h2 style="margin-top:0;">Статистика</h2>
+    <div class="stats">
+      <div><span>Мин</span><b id="sMin">—</b></div>
+      <div><span>Средняя</span><b id="sAvg">—</b></div>
+      <div><span>Максимум</span><b id="sMax">—</b></div>
+      <div><span>Найдено</span><b id="sCount">—</b></div>
+    </div>
+    <table>
+      <thead>
+        <tr><th>Артикул</th><th>Название</th><th>Цена</th></tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const go = $("#go"), reset = $("#reset"), statusEl = $("#status");
+const progressEl = $("#progress"), progressCard = $("#progressCard");
+const statsCard = $("#statsCard");
+let pollTimer = null;
+
+function setStatus(t, err = false) {
+  statusEl.textContent = t;
+  statusEl.classList.toggle("err", err);
+  statusEl.classList.toggle("muted", !err);
+}
+
+function money(v) {
+  if (v == null || v === 0) return "—";
+  return new Intl.NumberFormat("ru-RU").format(Math.round(v)) + " ₽";
+}
+
+function renderProgress(lines) {
+  progressEl.innerHTML = lines.map(l =>
+    `<div>[${l.t.toFixed(1)}s] ${escapeHtml(l.message)}</div>`
+  ).join("");
+  progressEl.scrollTop = progressEl.scrollHeight;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"]/g,
+    c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+}
+
+function renderStats(result) {
+  const s = result.stats || {};
+  $("#sMin").textContent = money(s.min);
+  $("#sAvg").textContent = money(s.avg);
+  $("#sMax").textContent = money(s.max);
+  $("#sCount").textContent = s.count ?? "—";
+  const tbody = $("#rows");
+  tbody.innerHTML = "";
+  (result.products || []).forEach(p => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${escapeHtml(p.article)}</td>
+                    <td>${escapeHtml(p.name || "—")}</td>
+                    <td>${money(p.price)}</td>`;
+    tbody.append(tr);
+  });
+  statsCard.style.display = "block";
+}
+
+async function poll(jobId) {
+  try {
+    const resp = await fetch(`/search/${jobId}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const job = await resp.json();
+    renderProgress(job.progress || []);
+    if (job.status === "done") {
+      clearInterval(pollTimer); pollTimer = null;
+      setStatus(`Готово за ${(job.elapsed_ms / 1000).toFixed(1)} с`);
+      go.disabled = false;
+      renderStats(job.result || {});
+    } else if (job.status === "failed") {
+      clearInterval(pollTimer); pollTimer = null;
+      setStatus("Ошибка: " + (job.error || "unknown"), true);
+      go.disabled = false;
+    } else {
+      setStatus(job.status === "pending" ? "В очереди..." : "Ищу...");
+    }
+  } catch (err) {
+    clearInterval(pollTimer); pollTimer = null;
+    setStatus("Ошибка опроса: " + err.message, true);
+    go.disabled = false;
+  }
+}
+
+go.addEventListener("click", async () => {
+  const query = $("#q").value.trim();
+  if (!query) { setStatus("Введи запрос", true); return; }
+
+  go.disabled = true;
+  statsCard.style.display = "none";
+  progressCard.style.display = "block";
+  progressEl.innerHTML = "";
+  setStatus("Создаю задачу...");
+
+  const body = {
+    query,
+    sample: Number($("#sample").value) || 20,
+    target: Number($("#target").value) || 10,
+    use_browser: $("#browser").checked,
+  };
+
+  try {
+    const resp = await fetch("/search", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${await resp.text()}`);
+    const { job_id } = await resp.json();
+    pollTimer = setInterval(() => poll(job_id), 1000);
+    poll(job_id);
+  } catch (err) {
+    setStatus("Ошибка старта: " + err.message, true);
+    go.disabled = false;
+  }
+});
+
+reset.addEventListener("click", () => {
+  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+  statsCard.style.display = "none";
+  progressCard.style.display = "none";
+  progressEl.innerHTML = "";
+  setStatus("Готов");
+  go.disabled = false;
+});
+</script>
+</body>
+</html>

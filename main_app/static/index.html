@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TagMaster — Main</title>
+<style>
+  :root { --ink:#111417; --muted:#66727d; --line:#dbe3e8; --accent:#0d7c86; --bg:#eef4f5; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+         font:14px/1.45 Inter,"Segoe UI",Arial,sans-serif; }
+  .wrap { max-width:1200px; margin:0 auto; padding:24px; }
+  h1 { font-size:24px; margin:0 0 4px; }
+  h2 { font-size:16px; margin:20px 0 8px; }
+  h3 { font-size:14px; margin:16px 0 6px; color:var(--muted);
+       text-transform:uppercase; letter-spacing:.02em; }
+  .muted { color:var(--muted); }
+  .card { background:#fff; border:1px solid var(--line); border-radius:10px;
+          padding:18px; box-shadow:0 6px 20px rgba(17,24,28,.05); }
+  .drop { display:grid; place-items:center; min-height:240px; padding:24px;
+          border:2px dashed #b8c5ce; border-radius:10px; background:#fbfdfd;
+          text-align:center; color:var(--muted); cursor:pointer; transition:.15s; }
+  .drop.dragover { border-color:var(--accent); background:#eaf4f5; }
+  .drop input { display:none; }
+  .drop img { max-width:100%; max-height:280px; border-radius:8px; }
+  button { min-height:40px; border:0; border-radius:8px; padding:0 18px;
+           background:linear-gradient(135deg,#111719,#25363a); color:#fff;
+           font-weight:800; cursor:pointer; font:inherit; }
+  button:hover { filter:brightness(1.08); }
+  button[disabled] { opacity:.5; cursor:progress; }
+  button.secondary { background:#edf4f5; color:var(--accent); }
+  .row { display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-top:14px; }
+  .status { font-weight:700; }
+  .status.err { color:#c04452; }
+  .field { display:grid; grid-template-columns:160px 1fr; gap:10px; align-items:start;
+           padding:8px 0; border-bottom:1px solid var(--line); }
+  .field:last-child { border-bottom:0; }
+  .field .k { color:var(--muted); font-weight:800; font-size:12px;
+              text-transform:uppercase; }
+  .field .v { word-break:break-word; }
+  .tags { display:flex; gap:6px; flex-wrap:wrap; }
+  .tags span { background:#eef4f5; color:var(--accent); padding:4px 9px;
+               border-radius:999px; font-size:12px; font-weight:800; }
+  .stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px;
+           margin-bottom:14px; }
+  .stats > div { background:#f6f9fa; border:1px solid var(--line);
+                 border-radius:8px; padding:12px; }
+  .stats b { display:block; font-size:20px; margin-top:4px; }
+  .stats span { color:var(--muted); font-size:11px; font-weight:800;
+                text-transform:uppercase; }
+  table { width:100%; border-collapse:collapse; }
+  th, td { padding:9px 8px; border-bottom:1px solid var(--line); text-align:left;
+           font-size:13px; }
+  th { color:var(--muted); font-size:11px; text-transform:uppercase; }
+  .two { display:grid; grid-template-columns:minmax(0,420px) minmax(0,1fr);
+         gap:18px; margin-top:18px; }
+  @media (max-width:900px) { .two { grid-template-columns:1fr; } }
+  .error { color:#c04452; font-weight:700; }
+  .placeholder { color:var(--muted); font-weight:700; padding:20px; text-align:center; }
+
+  .cards-section { margin-top:18px; }
+  .cards-section h2 { margin-top:0; }
+  .variants { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+              gap:14px; margin-top:12px; }
+  .variant { border:1px solid var(--line); border-radius:10px; overflow:hidden;
+             background:#fbfdfd; display:flex; flex-direction:column; }
+  .variant .thumb { background:#e9eff1; aspect-ratio:3/4; display:grid; place-items:center;
+                    overflow:hidden; }
+  .variant .thumb img { width:100%; height:100%; object-fit:contain; display:block; }
+  .variant .meta { padding:10px 12px; display:flex; flex-direction:column; gap:6px; }
+  .variant .meta b { font-size:13px; }
+  .variant .meta small { color:var(--muted); font-size:11px; text-transform:uppercase;
+                         font-weight:800; letter-spacing:.02em; }
+  .variant .meta a { color:var(--accent); font-size:12px; font-weight:800;
+                     text-decoration:none; }
+  .variant .meta a:hover { text-decoration:underline; }
+  .cutout-info { color:var(--muted); font-size:12px; margin-top:10px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>TagMaster</h1>
+  <p class="muted">Фото → GigaChat Vision → анализ Wildberries → карточки товара.</p>
+
+  <div class="card" style="margin-top:18px;">
+    <label class="drop" id="drop">
+      <input id="file" type="file" accept="image/*" capture="environment">
+      <div id="hint">
+        <div style="font-size:38px;">+</div>
+        <div><strong>Кликни или перетащи фото</strong></div>
+        <div class="muted" style="font-size:12px;">JPG / PNG / WebP, до 15 МБ</div>
+      </div>
+      <img id="preview" hidden alt="">
+    </label>
+
+    <div class="row">
+      <button id="go" disabled>Анализировать</button>
+      <button id="reset" class="secondary" type="button">Сбросить</button>
+      <label style="display:flex; flex-direction:row; align-items:center; gap:6px;
+                    font-size:13px; color:var(--muted); font-weight:800;">
+        <input id="browser" type="checkbox" checked>
+        Браузерный поиск WB
+      </label>
+      <label style="display:flex; flex-direction:row; align-items:center; gap:6px;
+                    font-size:13px; color:var(--muted); font-weight:800;">
+        <input id="cutout" type="checkbox" checked>
+        Вырезать фон
+      </label>
+      <span id="status" class="status muted">Жду фото</span>
+    </div>
+  </div>
+
+  <div class="two" id="results" style="display:none;">
+    <div class="card" id="detectCard">
+      <h2 style="margin-top:0;">GigaChat Vision</h2>
+      <div id="detectFields"></div>
+    </div>
+
+    <div class="card" id="marketCard">
+      <h2 style="margin-top:0;">Аналитика Wildberries</h2>
+      <p class="muted" id="marketQuery" style="margin:0 0 12px;"></p>
+      <div id="marketBody">
+        <div class="placeholder">Жду данных...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card cards-section" id="cardsSection" style="display:none;">
+    <h2 style="margin-top:0;">Карточки товара</h2>
+    <p class="muted" id="cardsInfo" style="margin:0;"></p>
+    <div id="cardsBody">
+      <div class="placeholder">Жду рендера...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const drop = $("#drop"), fileInput = $("#file"), preview = $("#preview"),
+      hint = $("#hint"), go = $("#go"), reset = $("#reset"), statusEl = $("#status");
+
+let currentFile = null;
+
+function setStatus(t, err = false) {
+  statusEl.textContent = t;
+  statusEl.classList.toggle("err", err);
+  statusEl.classList.toggle("muted", !err);
+}
+
+function showFile(file) {
+  currentFile = file || null;
+  go.disabled = !file;
+  if (!file) {
+    preview.hidden = true; hint.hidden = false;
+    preview.removeAttribute("src");
+    setStatus("Жду фото");
+    return;
+  }
+  preview.src = URL.createObjectURL(file);
+  preview.hidden = false; hint.hidden = true;
+  setStatus("Готово к отправке");
+}
+
+fileInput.addEventListener("change", (e) => showFile(e.target.files[0] || null));
+
+["dragenter","dragover"].forEach(n =>
+  drop.addEventListener(n, e => { e.preventDefault(); drop.classList.add("dragover"); }));
+["dragleave","drop"].forEach(n =>
+  drop.addEventListener(n, e => { e.preventDefault(); drop.classList.remove("dragover"); }));
+drop.addEventListener("drop", e => {
+  const f = e.dataTransfer.files[0];
+  if (f) { fileInput.files = e.dataTransfer.files; showFile(f); }
+});
+
+function esc(v) {
+  return String(v ?? "").replace(/[&<>"]/g,
+    c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+}
+
+function money(v) {
+  if (v == null || v === 0) return "—";
+  return new Intl.NumberFormat("ru-RU").format(Math.round(v)) + " ₽";
+}
+
+function renderDetect(d) {
+  const rows = [
+    ["Товар", d.product],
+    ["Категория", d.category],
+    ["Запрос WB", d.search_query],
+    ["Заголовок", d.title],
+    ["Описание", d.description],
+    ["Уверенность", ((d.confidence || 0) * 100).toFixed(0) + "%"],
+  ];
+  const fields = $("#detectFields");
+  fields.innerHTML = rows.map(([k, v]) =>
+    `<div class="field"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div></div>`
+  ).join("");
+  fields.insertAdjacentHTML("beforeend",
+    `<div class="field"><div class="k">Преимущества</div>
+       <div class="v tags">${(d.benefits||[]).map(b=>`<span>${esc(b)}</span>`).join("")}</div></div>`);
+  fields.insertAdjacentHTML("beforeend",
+    `<div class="field"><div class="k">Ключевые слова</div>
+       <div class="v tags">${(d.keywords||[]).map(k=>`<span>${esc(k)}</span>`).join("")}</div></div>`);
+}
+
+function renderMarket(market) {
+  const body = $("#marketBody");
+  if (market.error) {
+    body.innerHTML = `<div class="error">Ошибка аналитики: ${esc(market.error)}</div>`;
+    return;
+  }
+  const s = market.stats || {};
+  const products = market.products || [];
+  if (!products.length) {
+    body.innerHTML = `<div class="placeholder">Похожих товаров не найдено</div>`;
+    return;
+  }
+  body.innerHTML = `
+    <div class="stats">
+      <div><span>Мин</span><b>${money(s.min)}</b></div>
+      <div><span>Средняя</span><b>${money(s.avg)}</b></div>
+      <div><span>Максимум</span><b>${money(s.max)}</b></div>
+      <div><span>Найдено</span><b>${s.count ?? products.length}</b></div>
+    </div>
+    <table>
+      <thead><tr><th>Артикул</th><th>Название</th><th>Цена</th></tr></thead>
+      <tbody>
+        ${products.slice(0, 30).map(p => `
+          <tr>
+            <td>${esc(p.article)}</td>
+            <td>${esc(p.name || "—")}</td>
+            <td>${money(p.price)}</td>
+          </tr>`).join("")}
+      </tbody>
+    </table>
+  `;
+}
+
+function renderCards(cards) {
+  const section = $("#cardsSection");
+  const body = $("#cardsBody");
+  const info = $("#cardsInfo");
+  section.style.display = "block";
+
+  if (!cards || typeof cards !== "object") {
+    info.textContent = "";
+    body.innerHTML = `<div class="error">Рендер не вернул результат</div>`;
+    return;
+  }
+
+  if (cards.error) {
+    info.textContent = "";
+    body.innerHTML = `<div class="error">Ошибка рендера: ${esc(cards.error)}</div>`;
+    return;
+  }
+
+  const variants = cards.variants || [];
+  const cutout = cards.cutout || null;
+
+  let infoText = `Вариантов: ${variants.length}`;
+  if (typeof cards.template_count === "number") {
+    infoText += ` · доступно шаблонов: ${cards.template_count}`;
+  }
+  info.textContent = infoText;
+
+  if (!variants.length) {
+    body.innerHTML = `<div class="placeholder">Варианты не сгенерированы</div>`;
+    return;
+  }
+
+  const cutoutLine = cutout
+    ? `<div class="cutout-info">Сегментация: ${esc(cutout.provider || "—")}${
+        cutout.usable === false ? " (неудачная, использован оригинал)" : ""
+      }</div>`
+    : "";
+
+  body.innerHTML = `
+    <div class="variants">
+      ${variants.map(v => `
+        <div class="variant">
+          <div class="thumb">
+            <img src="${esc(v.card_url)}" alt="${esc(v.name)}" loading="lazy">
+          </div>
+          <div class="meta">
+            <b>${esc(v.name || v.id)}</b>
+            <small>${esc(v.layout || "")} · ${esc(v.palette || "")}</small>
+            <a href="${esc(v.card_url)}" target="_blank" rel="noopener">Открыть в новой вкладке</a>
+          </div>
+        </div>`).join("")}
+    </div>
+    ${cutoutLine}
+  `;
+}
+
+go.addEventListener("click", async () => {
+  if (!currentFile) return;
+  go.disabled = true;
+  $("#results").style.display = "grid";
+  $("#cardsSection").style.display = "block";
+  $("#detectFields").innerHTML = `<div class="placeholder">Распознаю...</div>`;
+  $("#marketBody").innerHTML = `<div class="placeholder">Жду результата GigaChat...</div>`;
+  $("#cardsBody").innerHTML = `<div class="placeholder">Рендерю карточки...</div>`;
+  $("#cardsInfo").textContent = "";
+  $("#marketQuery").textContent = "";
+  setStatus("GigaChat думает...");
+
+  const fd = new FormData();
+  fd.append("image", currentFile);
+  fd.append("sample", "20");
+  fd.append("target", "10");
+  fd.append("use_browser", $("#browser").checked ? "true" : "false");
+  fd.append("do_cutout", $("#cutout").checked ? "true" : "false");
+
+  try {
+    const t0 = performance.now();
+    const resp = await fetch("/analyze", { method: "POST", body: fd });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${await resp.text()}`);
+    const data = await resp.json();
+    const elapsed = ((performance.now() - t0) / 1000).toFixed(1);
+
+    renderDetect(data.detect || {});
+    $("#marketQuery").textContent = data.search_query
+      ? `Запрос: «${data.search_query}»`
+      : "search_query пуст";
+    renderMarket(data.market || {});
+    renderCards(data.cards || {});
+
+    setStatus(`Готово за ${elapsed} с`);
+  } catch (err) {
+    console.error(err);
+    setStatus("Ошибка: " + err.message, true);
+    $("#marketBody").innerHTML =
+      `<div class="error">Не удалось получить результат: ${esc(err.message)}</div>`;
+    $("#cardsBody").innerHTML =
+      `<div class="error">Не удалось получить результат: ${esc(err.message)}</div>`;
+  } finally {
+    go.disabled = false;
+  }
+});
+
+reset.addEventListener("click", () => {
+  fileInput.value = "";
+  showFile(null);
+  $("#results").style.display = "none";
+  $("#cardsSection").style.display = "none";
+});
+</script>
+</body>
+</html>
