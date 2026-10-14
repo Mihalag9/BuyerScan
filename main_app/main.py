@@ -23,7 +23,7 @@ STATIC = ROOT / "static"
 MAX_SIDE = 1600
 MAX_BYTES = 15 * 1024 * 1024
 
-app = FastAPI(title="TagMaster Main Service")
+app = FastAPI(title="BuyerScan Main Service")
 
 
 def _save_upload(raw: bytes) -> Path:

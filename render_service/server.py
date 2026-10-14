@@ -28,7 +28,7 @@ PORT = int(os.getenv("RENDER_PORT", "5178"))
 MAX_BYTES = 15 * 1024 * 1024
 MAX_SIDE = 1600
 
-app = FastAPI(title="TagMaster Render Service")
+app = FastAPI(title="BuyerScan Render Service")
 
 
 def _hash(raw: bytes) -> str:

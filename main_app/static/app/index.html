@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>BuyerScan — анализ товара и карточки</title>
+    <meta name="description" content="Фото → GigaChat Vision → аналитика Wildberries → карточки товара" />
+    <meta name="theme-color" content="#0d7c86" />
+    <link rel="icon" href="/app/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/app/icons/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="BuyerScan" />
+    <script>
+      // Применяем тему до первой отрисовки — без вспышки светлого фона.
+      try {
+        var saved = localStorage.getItem('tm-theme');
+        var theme =
+          saved === 'light' || saved === 'dark'
+            ? saved
+            : matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'light';
+        document.documentElement.dataset.theme = theme;
+      } catch (e) {
+        document.documentElement.dataset.theme = 'light';
+      }
+    </script>
+    <script type="module" crossorigin src="/app/assets/index-D2gQiYsK.js"></script>
+    <link rel="stylesheet" crossorigin href="/app/assets/index-PHXkY2nP.css">
+  <link rel="manifest" href="/app/manifest.webmanifest"></head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

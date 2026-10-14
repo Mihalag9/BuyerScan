@@ -25,7 +25,7 @@ MAX_JOBS = 200
 JOB_TTL = 3600
 MAX_PROGRESS_LINES = 500
 
-app = FastAPI(title="TagMaster Analytics")
+app = FastAPI(title="BuyerScan Analytics")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

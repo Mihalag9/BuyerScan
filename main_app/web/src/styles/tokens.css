@@ -1,0 +1,108 @@
+/* Дизайн-токены: светлая и тёмная темы. */
+
+:root {
+  /* Типографика */
+  --font-sans:
+    'Inter', -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    'Noto Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Cascadia Code', Consolas, 'Courier New', monospace;
+
+  /* Геометрия */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  --header-h: 56px;
+  --content-w: 1240px;
+
+  /* Переходы */
+  --transition: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Светлая тема (по умолчанию) ─────────────────────────────── */
+:root,
+[data-theme='light'] {
+  color-scheme: light;
+
+  --bg: #eef3f4;
+  --bg-elev: #ffffff;
+  --bg-soft: #f5f8f9;
+  --bg-inset: #e7eef0;
+  --bg-hover: #dfe9eb;
+
+  --ink: #101416;
+  --ink-2: #3d4c54;
+  --ink-3: #67767f;
+
+  --line: #d8e2e6;
+  --line-strong: #c0cfd5;
+
+  --accent: #0d7c86;
+  --accent-strong: #0a646c;
+  --accent-ink: #ffffff;
+  --accent-soft: rgba(13, 124, 134, 0.1);
+  --accent-line: rgba(13, 124, 134, 0.35);
+
+  --ok: #188a4e;
+  --ok-soft: rgba(24, 138, 78, 0.12);
+  --warn: #a6660a;
+  --warn-soft: rgba(166, 102, 10, 0.12);
+  --err: #c03a4d;
+  --err-soft: rgba(192, 58, 77, 0.1);
+
+  --shadow-sm: 0 1px 2px rgba(16, 24, 32, 0.06);
+  --shadow-md: 0 6px 24px rgba(16, 24, 32, 0.08);
+  --shadow-lg: 0 18px 50px rgba(16, 24, 32, 0.16);
+
+  --overlay: rgba(10, 16, 20, 0.55);
+  --skeleton-a: #e4ecee;
+  --skeleton-b: #f0f5f6;
+}
+
+/* ── Тёмная тема ─────────────────────────────────────────────── */
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg: #0d1114;
+  --bg-elev: #151b20;
+  --bg-soft: #1a2127;
+  --bg-inset: #202a31;
+  --bg-hover: #27343c;
+
+  --ink: #e9eef0;
+  --ink-2: #b4c1c8;
+  --ink-3: #8595a0;
+
+  --line: #273238;
+  --line-strong: #35454e;
+
+  --accent: #2cbecb;
+  --accent-strong: #4ad3de;
+  --accent-ink: #06272b;
+  --accent-soft: rgba(44, 190, 203, 0.14);
+  --accent-line: rgba(44, 190, 203, 0.4);
+
+  --ok: #3ecf82;
+  --ok-soft: rgba(62, 207, 130, 0.14);
+  --warn: #e2a53f;
+  --warn-soft: rgba(226, 165, 63, 0.14);
+  --err: #f0687d;
+  --err-soft: rgba(240, 104, 125, 0.14);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 28px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 22px 60px rgba(0, 0, 0, 0.6);
+
+  --overlay: rgba(4, 8, 10, 0.72);
+  --skeleton-a: #1c242b;
+  --skeleton-b: #242f37;
+}
